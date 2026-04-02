@@ -1,0 +1,10 @@
+﻿@if (IsVisible)
+{
+    <div class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+}
