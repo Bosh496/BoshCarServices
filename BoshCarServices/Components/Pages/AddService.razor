@@ -1,0 +1,227 @@
+﻿@page "/addservice"
+@using BoshCarServices.Services
+@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@using BoshCarServices.ViewModels
+@rendermode InteractiveServer
+@using BoshCarServices.Data.Context
+@using BoshCarServices.Data.Entities
+@inject ApplicationDbContext _context
+@inject NavigationManager nav
+@inject GoogleDriveService driveService
+<style>
+    .upload-box {
+        border: 2px dashed #cfd8dc;
+        border-radius: 12px;
+        background: #fafbfc;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-align: center;
+        min-height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .upload-box:hover {
+            border-color: #3f51b5;
+            background: #f4f6ff;
+        }
+
+    .upload-icon {
+        font-size: 40px;
+        color: #3f51b5;
+    }
+</style>
+<PageTitle>Add Service</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
+
+    <MudPaper Class="pa-6">
+
+        <MudText Typo="Typo.h5" Class="mb-4">
+            Add Service
+        </MudText>
+        <MudForm @ref="form" Model="@model">
+        <MudExpansionPanels MultiExpansion="true">
+
+            <!-- CUSTOMER DETAILS -->
+
+            <MudExpansionPanel Text="Customer Details" Expanded="true">
+
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" md="3">
+                        <MudTextField Label="Name"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true"
+                                      Required="true"
+                                          RequiredError="Name is required"
+                                      @bind-Value="model.Customer.Name"
+                                      For="@(() => model.Customer.Name)" />
+                                      </MudItem>
+                                      <MudItem xs="12" md="3">
+                        <MudTextField Label="Mobile"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true"
+                                          Required="true"
+                                      @bind-Value="model.Customer.Mobile"
+                                      For="@(() => model.Customer.Mobile)" />
+                                      </MudItem>
+                                      <MudItem xs="12" md="3">
+                        <MudTextField Label="Email"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true"
+                                      @bind-Value="model.Customer.Email"
+                                      For="@(() => model.Customer.Email)" />
+                                      </MudItem>
+
+                </MudGrid>
+
+            </MudExpansionPanel>
+
+
+            <!-- VEHICLE DETAILS -->
+
+            <MudExpansionPanel Text="Vehicle Details">
+
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" md="3">
+                        <MudTextField Label="Reg No"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true"
+                                      @bind-Value="model.Vehicle.RegNum"
+                                      For="@(() => model.Vehicle.RegNum)" />
+                                      </MudItem>
+                                      <MudItem xs="12" md="3">
+                        <MudTextField Label="Vehicle Make"
+                                      Variant="Variant.Outlined"
+                                      FullWidth="true"
+                                      @bind-Value="model.Vehicle.VehicleMake"
+                                      For="@(() => model.Vehicle.VehicleMake)" />
+                                      </MudItem>
+                                      <MudItem xs="12" md="3">
+                        <MudTextField Label="Vehicle Model"
+                                      FullWidth="true"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="model.Vehicle.VehicleModel"
+                                      For="@(() => model.Vehicle.VehicleModel)" />
+                                      </MudItem>
+                </MudGrid>
+
+            </MudExpansionPanel>
+
+
+            <!-- SERVICE DETAILS -->
+
+                <MudExpansionPanel Text="Service Details">
+
+                    <MudGrid Spacing="3">
+
+                        <MudItem xs="12" md="3">
+
+                            <MudSelect T="int"
+                                       Label="Service Type"
+                                       Variant="Variant.Outlined"
+                                       FullWidth="true"
+                                       MultiSelection="true"
+                                       Required="true"
+                                       Chip="true"
+                                       RequiredError="Select at least one service"
+                                       SelectedValues="selectedServiceTypeIds"
+                                       ToStringFunc="@(id => serviceTypes.FirstOrDefault(x => x.Id == id)?.Name)"
+                                       SelectedValuesChanged="OnServiceTypesChanged">
+
+                                @foreach (var item in serviceTypes)
+                                {
+                                    <MudSelectItem Value="@item.Id">
+                                        @item.Name
+                                    </MudSelectItem>
+                                }
+
+                            </MudSelect>
+
+                        </MudItem>
+
+                        <MudItem xs="12" md="3">
+
+                            <MudTextField Label="Mileage"
+                                          Variant="Variant.Outlined"
+                                          FullWidth="true"
+                                          @bind-Value="model.Service.Mileage"
+                                          For="@(() => model.Service.Mileage)" />
+
+                        </MudItem>
+
+                        <MudItem xs="12" md="3">
+
+                            <MudTextField Label="Total Bill"
+                                          Variant="Variant.Outlined"
+                                          FullWidth="true"
+                                          @bind-Value="model.Service.TotalBill"
+                                          For="@(() => model.Service.TotalBill)"
+                                          @bind-Value:after="CalculatePoints" />
+
+                        </MudItem>
+
+                        <MudItem xs="12" md="3">
+
+                            <MudTextField Label="Points"
+                                          Variant="Variant.Outlined"
+                                          FullWidth="true"
+                                          Value="model.Service.RewardPoints"
+                                          Disabled="true" />
+
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+
+                            <MudPaper Class="pa-4 upload-box" Elevation="0">
+
+                                <MudStack AlignItems="AlignItems.Center" Spacing="2">
+
+                                    <MudIcon Icon="@Icons.Material.Filled.CloudUpload"
+                                             Size="Size.Large"
+                                             Class="upload-icon" />
+
+                                    <MudText Typo="Typo.subtitle1">
+                                        Upload Service Documents
+                                    </MudText>
+
+                                    <MudText Typo="Typo.caption">
+                                        Click below to upload file
+                                    </MudText>
+
+                                    <InputFile OnChange="HandleFileSelected" />
+
+                                    <MudText Typo="Typo.caption" Class="mt-2">
+                                        @selectedFileName
+                                    </MudText>
+
+                                </MudStack>
+
+                            </MudPaper>
+
+                        </MudItem>
+                    </MudGrid>
+
+                    <MudDivider Class="my-4" />
+
+                    <MudStack Row="true" Justify="Justify.FlexEnd">
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Large"
+                                   OnClick="SaveService">
+
+                            Submit Service
+
+                        </MudButton>
+
+                    </MudStack>
+
+                </MudExpansionPanel>
+
+        </MudExpansionPanels>
+        </MudForm>
+    </MudPaper>
+
+</MudContainer>

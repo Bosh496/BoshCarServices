@@ -1,0 +1,118 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@using BoshCarServices.Components.Layout
+@using BoshCarServices.Data.Entities
+@using BoshCarServices.Data.Context
+@using MudBlazor
+@inject ApplicationDbContext _context
+@inject NavigationManager nav
+@layout LoginLayout
+<div class="login-wrapper">
+
+    <MudGrid Class="login-layout">
+
+        <!-- LEFT SIDE IMAGE SLIDER -->
+
+        <MudItem xs="12" md="6" Class="slider-panel">
+
+            <MudCarousel TData="string"
+                         AutoCycle="true"
+                         CycleInterval="4000"
+                         ShowArrows="false"
+                         ShowBullets="true"
+                         Class="login-carousel">
+
+                <MudCarouselItem>
+                    <MudImage Src="/Images/service1.jpeg" Class="carousel-img" />
+                </MudCarouselItem>
+
+                <MudCarouselItem>
+                    <MudImage Src="/Images/service2.jpeg" Class="carousel-img" />
+                </MudCarouselItem>
+
+                <MudCarouselItem>
+                    <MudImage Src="/Images/service3.jpeg" Class="carousel-img" />
+                </MudCarouselItem>
+                <MudCarouselItem>
+                    <MudImage Src="/Images/service4.jpeg" Class="carousel-img" />
+                </MudCarouselItem>
+
+            </MudCarousel>
+
+        </MudItem>
+
+
+        <!-- RIGHT SIDE LOGIN -->
+
+        <MudItem xs="12" md="6" Class="login-panel">
+
+            <MudStack AlignItems="AlignItems.Center" Spacing="4">
+
+                <!-- LOGO -->
+
+                <MudImage Src="/Images/Bosh.jpg" Width="90" />
+
+                <MudText Typo="Typo.h3">
+                    Bosh Car Services
+                </MudText>
+
+                <MudText Typo="Typo.subtitle1">
+                    Smart Vehicle Service Management
+                </MudText>
+
+
+                <!-- LOGIN CARD -->
+
+                <MudPaper Class="login-card">
+
+                    <MudStack Spacing="3">
+
+                        <MudText Typo="Typo.h6" Align="Align.Center">
+                            Sign in
+                        </MudText>
+
+                        <MudTextField Label="Username"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="loginModel.Username"
+                                      Required="true"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Person" />
+
+                        <MudTextField Label="Password"
+                                      Variant="Variant.Outlined"
+                                      InputType="InputType.Password"
+                                      @bind-Value="loginModel.Password"
+                                      Required="true"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+
+                            <MudButton Variant="Variant.Text"
+                                       OnClick="Clear">
+                                Cancel
+                            </MudButton>
+
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       OnClick="LoginUser">
+                                Sign In
+                            </MudButton>
+
+                        </MudStack>
+
+                    </MudStack>
+
+                </MudPaper>
+
+
+
+                
+
+            </MudStack>
+
+        </MudItem>
+
+    </MudGrid>
+
+</div>

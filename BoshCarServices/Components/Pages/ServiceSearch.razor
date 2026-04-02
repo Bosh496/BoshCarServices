@@ -1,0 +1,158 @@
+﻿@page "/dashboard"
+@using MudBlazor
+@rendermode InteractiveServer
+@using BoshCarServices.Data.Context
+@using BoshCarServices.Data.Entities
+@using BoshCarServices.ViewModels
+@inject ApplicationDbContext _context
+@inject NavigationManager nav
+@inject IJSRuntime JS
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+
+    <!-- PAGE TITLE -->
+
+    <MudText Typo="Typo.h5" Class="mb-4">
+        Service Search
+    </MudText>
+
+    <!-- SEARCH PANEL -->
+
+    <MudForm @ref="form">
+
+        <MudPaper Elevation="1" Class="pa-4 mb-6 search-panel">
+
+            <MudGrid>
+
+                <MudItem xs="12" md="4">
+                    <MudTextField Label="Mobile Number"
+                                  Variant="Variant.Outlined"
+                                  @bind-Value="mobile"
+                                  Immediate="true"
+                                  Error="@(mobile != null && !IsMobileValid)"
+                                  ErrorText="Enter valid 10 digit mobile number" />
+                </MudItem>
+
+                <MudItem xs="12" md="4">
+                    <MudTextField Label="Vehicle Number"
+                                  Variant="Variant.Outlined"
+                                  Immediate="true"
+                                  @bind-Value="regNumber"
+                                  @bind-Value:after="ConvertToUpper"
+                                  Error="@(regNumber != null && !IsVehicleValid)"
+                                  ErrorText="Format: KA05MQ557" />
+                </MudItem>
+
+                <MudItem xs="12" md="4" Class="d-flex align-center">
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="!IsFormValid"
+                               OnClick="Search">
+                        Search
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               Class="ml-2"
+                               Disabled="!IsFormValid"
+                               OnClick="GoToAddService">
+                        Add Service
+                    </MudButton>
+
+                </MudItem>
+
+            </MudGrid>
+
+        </MudPaper>
+
+    </MudForm>
+
+
+    @if (results.Count > 0)
+    {
+
+        <!-- SERVICE TABLE -->
+
+        <MudPaper Elevation="1" Class="pa-4">
+
+            <MudText Typo="Typo.subtitle1" Class="mb-3">
+                Service History
+            </MudText>
+
+            <MudTable Items="results"
+                      Dense="true"
+                      Hover="true"
+                      Striped="true">
+
+                <HeaderContent>
+
+                    <MudTh>Name</MudTh>
+                    <MudTh>Mobile</MudTh>
+                    <MudTh>Vehicle RegNum</MudTh>
+                    <MudTh>Service Types</MudTh>
+                    <MudTh>Service Date</MudTh>
+                    <MudTh>Reward Points</MudTh>
+                    <MudTh>Document</MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.Mobile</MudTd>
+                    <MudTd>@context.RegNum</MudTd>
+                    <MudTd>@context.ServiceTypes</MudTd>
+                    <MudTd>@context.ServiceDate.ToShortDateString()</MudTd>
+                    <MudTd>@context.RewardPoints</MudTd>
+                    <MudTd>
+                        @if (context.FileData != null)
+                        {
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       OnClick="() => DownloadFile(context.ServiceId)">
+                                View File
+                            </MudButton>
+                        }
+                    </MudTd>
+                </RowTemplate>
+
+            </MudTable>
+
+        </MudPaper>
+
+
+        <!-- REWARD SUMMARY -->
+
+        <MudPaper Elevation="1" Class="pa-4 mt-4 reward-panel">
+
+            <MudGrid AlignItems="AlignItems.Center">
+
+                <MudItem xs="8">
+
+                    <MudText Typo="Typo.h6">
+                        Total Reward Points
+                    </MudText>
+
+                    <MudText Typo="Typo.h4" Color="Color.Primary">
+                        @totalPoints
+                    </MudText>
+
+                </MudItem>
+
+                <MudItem xs="4" Class="text-right">
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               Disabled="@(totalPoints < 500)"
+                               OnClick="RedeemAll">
+                        Redeem Points
+                    </MudButton>
+
+                </MudItem>
+
+            </MudGrid>
+
+        </MudPaper>
+
+    }
+
+</MudContainer>
