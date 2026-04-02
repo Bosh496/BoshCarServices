@@ -31,8 +31,8 @@ namespace BoshCarServices.Components.Pages
     Regex.IsMatch(mobile, @"^[0-9]{10}$");
 
         bool IsVehicleValid =>
-            !string.IsNullOrWhiteSpace(regNumber) &&
-            Regex.IsMatch(regNumber, @"^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{3,4}$");
+    !string.IsNullOrWhiteSpace(regNumber) &&
+    Regex.IsMatch(regNumber, @"^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{3,4}$");
 
         bool IsFormValid => IsMobileValid && IsVehicleValid;
 
@@ -77,45 +77,86 @@ namespace BoshCarServices.Components.Pages
                 );
             }
         }
-        async Task Search()
+        void OnMobileInput(ChangeEventArgs e)
         {
-            if (form != null)
+            if (e.Value != null)
             {
-                await form.Validate();
+                var value = e.Value.ToString();
 
-                if (!form.IsValid)
-                    return;
+                // Allow only digits
+                value = Regex.Replace(value, "[^0-9]", "");
+
+                // Restrict to 10 digits
+                if (value.Length > 10)
+                    value = value.Substring(0, 10);
+
+                mobile = value;
+            }
+        }
+        void OnVehicleChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                regNumber = value;
+                return;
             }
 
-           
+            // Convert to uppercase
+            value = value.ToUpper();
 
-            results = (from c in _context.CustomerMasters
-                       join v in _context.VehicleMasters on c.Id equals v.CId
-                       join s in _context.ServiceMasters on v.Id equals s.VId
+            // Allow only A-Z and 0-9
+            value = Regex.Replace(value, "[^A-Z0-9]", "");
 
-                       where c.Mobile == mobile && v.RegNum == regNumber
+            // Restrict max length (10 chars)
+            if (value.Length > 10)
+                value = value.Substring(0, 10);
 
-                       select new ServiceResultVM
-                       {
-                           ServiceId = s.Id,
-                           Name = c.Name,
-                           Mobile = c.Mobile,
-                           RegNum = v.RegNum,
-                           ServiceDate = s.createdDate ?? DateTime.Now,
-                           RewardPoints = s.RewardPoints,
-                           FileData = s.FileData,
-                           ContentType = s.ContentType,
-                           FileName = s.FileName,
+            regNumber = value;
+        }
+        async Task Search()
+        {
+            Loader.Show();
+            try {
 
-                           ServiceTypes = string.Join(", ",
-                               (from map in _context.ServiceTypeMappings
-                                join st in _context.ServiceTypeMasters
-                                on map.ServiceTypeId equals st.Id
-                                where map.ServiceId == s.Id
-                                select st.Name).ToList())
-                       }).ToList();
+                if (form != null)
+                {
+                    await form.Validate();
 
-            totalPoints = results.Sum(x => x.RewardPoints);
+                    if (!form.IsValid)
+                        return;
+                }
+
+
+
+                results = (from c in _context.CustomerMasters
+                           join v in _context.VehicleMasters on c.Id equals v.CId
+                           join s in _context.ServiceMasters on v.Id equals s.VId
+
+                           where c.Mobile == mobile && v.RegNum == regNumber
+
+                           select new ServiceResultVM
+                           {
+                               ServiceId = s.Id,
+                               Name = c.Name,
+                               Mobile = c.Mobile,
+                               RegNum = v.RegNum,
+                               ServiceDate = s.createdDate ?? DateTime.Now,
+                               RewardPoints = s.RewardPoints,
+                               FileData = s.FileData,
+                               ContentType = s.ContentType,
+                               FileName = s.FileName,
+
+                               ServiceTypes = string.Join(", ",
+                                   (from map in _context.ServiceTypeMappings
+                                    join st in _context.ServiceTypeMasters
+                                    on map.ServiceTypeId equals st.Id
+                                    where map.ServiceId == s.Id
+                                    select st.Name).ToList())
+                           }).ToList();
+
+                totalPoints = results.Sum(x => x.RewardPoints);
+            } finally { Loader.Hide(); }
+            
         }
 
         void RedeemAll()

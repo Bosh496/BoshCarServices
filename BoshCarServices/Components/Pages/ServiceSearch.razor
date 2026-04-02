@@ -1,4 +1,5 @@
 ﻿@page "/dashboard"
+@using BoshCarServices.Services
 @using MudBlazor
 @rendermode InteractiveServer
 @using BoshCarServices.Data.Context
@@ -7,7 +8,15 @@
 @inject ApplicationDbContext _context
 @inject NavigationManager nav
 @inject IJSRuntime JS
-<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+@inject LoadingService Loader
+<style>
+    .page-bg {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #cfe9ff, #eaf4ff);
+    }
+</style>
+<div class="page-bg">
+    <MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
 
     <!-- PAGE TITLE -->
 
@@ -24,22 +33,28 @@
             <MudGrid>
 
                 <MudItem xs="12" md="4">
-                    <MudTextField Label="Mobile Number"
-                                  Variant="Variant.Outlined"
-                                  @bind-Value="mobile"
-                                  Immediate="true"
-                                  Error="@(mobile != null && !IsMobileValid)"
-                                  ErrorText="Enter valid 10 digit mobile number" />
+
+                        <MudTextField Label="Mobile Number"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="mobile"
+                                      Immediate="true"
+                                      MaxLength="10"
+                                      InputType="InputType.Telephone"
+                                      @oninput="OnMobileInput"
+                                      Error="@(mobile?.Length == 10 ? !IsMobileValid : false)"
+                                      ErrorText="Enter valid 10 digit mobile number" />
                 </MudItem>
 
                 <MudItem xs="12" md="4">
-                    <MudTextField Label="Vehicle Number"
-                                  Variant="Variant.Outlined"
-                                  Immediate="true"
-                                  @bind-Value="regNumber"
-                                  @bind-Value:after="ConvertToUpper"
-                                  Error="@(regNumber != null && !IsVehicleValid)"
-                                  ErrorText="Format: KA05MQ557" />
+                        <MudTextField Label="Vehicle Number"
+                                      Variant="Variant.Outlined"
+                                      Immediate="true"
+                                      Required="true"
+                                      Value="@regNumber"
+                                      ValueChanged="@((string val) => OnVehicleChanged(val))"
+                                      Error="@(regNumber != null && !IsVehicleValid)"
+                                      ErrorText="Format: KA05MQ557"
+                                      Placeholder="KA05MQ557" />
                 </MudItem>
 
                 <MudItem xs="12" md="4" Class="d-flex align-center">
@@ -156,3 +171,4 @@
     }
 
 </MudContainer>
+</div>

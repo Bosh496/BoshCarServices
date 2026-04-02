@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add MudBlazor services
 builder.Services.AddMudServices(); 
 builder.Services.AddScoped<GoogleDriveService>();
+builder.Services.AddScoped<LoadingService>();
 // Add DbContext (we'll configure this in Step 2)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
