@@ -1,4 +1,5 @@
-﻿using BoshCarServices.Data.Entities;
+﻿using BoshCarServices.Components.Shared;
+using BoshCarServices.Data.Entities;
 
 namespace BoshCarServices.Components.Pages
 {
@@ -6,8 +7,10 @@ namespace BoshCarServices.Components.Pages
     {
         LoginMaster loginModel = new();
 
-        public void LoginUser()
+        public async void LoginUser()
         {
+            LoaderService.Show();
+            await Task.Delay(800);
             var user = _context.LoginMasters
                         .FirstOrDefault(x =>
                             x.Username == loginModel.Username &&
@@ -16,7 +19,9 @@ namespace BoshCarServices.Components.Pages
 
             if (user != null)
             {
+               
                 nav.NavigateTo("/dashboard");
+                LoaderService.Hide();
             }
         }
 

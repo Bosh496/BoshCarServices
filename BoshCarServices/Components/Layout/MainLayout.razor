@@ -33,8 +33,14 @@
 </div>
 
 @code {
+
     protected override void OnInitialized()
     {
         Loader.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Loader.OnChange -= StateHasChanged;
     }
 }

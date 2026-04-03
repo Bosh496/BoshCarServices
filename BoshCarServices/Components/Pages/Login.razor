@@ -3,10 +3,12 @@
 @using BoshCarServices.Components.Layout
 @using BoshCarServices.Data.Entities
 @using BoshCarServices.Data.Context
+@using BoshCarServices.Services
 @using MudBlazor
 @inject ApplicationDbContext _context
 @inject NavigationManager nav
 @layout LoginLayout
+@inject LoadingService LoaderService
 
 <div class="login-wrapper">
 

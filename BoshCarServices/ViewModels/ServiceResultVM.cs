@@ -10,7 +10,7 @@
 
         public string RegNum { get; set; }
         public string ServiceTypes { get; set; }
-
+        public decimal TotalBill { get; set; }
         public DateTime ServiceDate { get; set; }
 
         public int RewardPoints { get; set; }
