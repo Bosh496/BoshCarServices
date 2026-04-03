@@ -145,6 +145,7 @@ namespace BoshCarServices.Components.Pages
                                FileData = s.FileData,
                                ContentType = s.ContentType,
                                FileName = s.FileName,
+                               TotalBill = s.TotalBill,
 
                                ServiceTypes = string.Join(", ",
                                    (from map in _context.ServiceTypeMappings
